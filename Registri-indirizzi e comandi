@@ -1,1 +1,26 @@
 
+_Nell' assembly utilizziamo i registri, piccole componenti, estramamente veloci ma che contengono pochi bytes, i quali sono: _
+
+-rax,rbx,rcx,rdx,r8,r9,r10 chiamati pure data registers a 64bit , di solito immagazzinano istruzioni e argomenti di syscalls.
+
+_il registro a 64 bit a sotto di lui altri 3 più piccoli:_
+  - rax 64 bit
+
+    - eax 32 bit
+
+      - ax 16 bit
+
+        - al 8bit
+
+-rbp,rsp,rip chiamati registri puntatori, rbp punta alla base dello stack, rsp punta alla locazione corrente nello stack e rip punta all'indirizzo della prossima istruzione
+
+## Tipi di accessi alla memoria e endianness
+
+- Immediato = add 3
+- Tramite registro = add rax
+- Diretto con l'indirizzo specifico di memoria = call 0xffffffaa83ff 
+- Indiretto utilizzano un registro = call 0x44d000 call[rax]
+- Stack = add rsp
+
+Little-Endian ci riferiamo al modo di immagazzianre o recuperare i bytes, se abbiamo un indirizzo come 0x0011223344556677 
+alla fine con il little sarà cosi 0x7766554433221100, seguendo la logica primo a destra per continuare a sinistra
