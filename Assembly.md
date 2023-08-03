@@ -185,7 +185,7 @@ possiamo dire che sta facenco il puntatore a un indirizzo che contiene il valore
 <!-->
         lea rax, [rsp] #comando che copiava l'indirizzo puntato da rsp in rax
 
-# Arithmetica
+# Aritmetica
 
 _rax e rbx supponiamo che siano settati ad 1_
 
