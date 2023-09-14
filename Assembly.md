@@ -22,9 +22,12 @@ _il registro a 64 bit a sotto di lui altri 3 più piccoli:_
 - Indiretto utilizzano un registro = call 0x44d000, call[rax]
 - Stack = add rsp
 
-Indirizzo Esempio: 0x0011223344556677---->alla pozione 77 abbiamo il least significant byte
-                        |
-                        |-->alla posizione 00 abbiamo il most significant byte
+Indirizzo Esempio: 
+0x0011223344556677
+
+alla posizione 77 abbiamo il least significant byte
+                       
+alla posizione 00 abbiamo il most significant byte
   
 ___Little-Endian__ ci riferiamo al modo di immagazzianre o recuperare i bytes, se abbiamo un indirizzo come 0x0011223344556677 
 alla fine con il little sarà cosi 0x7766554433221100, seguendo la logica primo a destra per continuare a sinistra cioè __dal least significant to il most significant___
@@ -35,11 +38,11 @@ ___Big-Endian__ invece nel big l'indirizzo rimarrà uguale cioè 0x0011223344556
 
 La grandenza dei dati cambia a seconda dell'architettura però nella x86 segue quanto:
 
-  - byte = 8 bits = 0xv
+  - byte = 8 bits = 0xa
 
-  - word = 16 bits = 0xvbf
+  - word = 16 bits = 0xab
 
-  - dword (double-word) = 32 bits = 0x1perlsjf
+  - dword (double-word) = 32 bits = 0x1a3fcs
 
   - qword (quad-word) = 64 bits = 0xabcdef1234567890
 
@@ -59,7 +62,7 @@ Da una determinata grandezza in bits o byte è anche corretto utilizzare i regis
 
    section .data ----> __dove sono contenuto le variabili che poi verrano caricate nel data segment, è read and write__
    
-message: db      "Hello Word!" ---> ___Abbiamo il _message_ che è una semplice etichetta, _DB_ che definisce il tipo di varibile e indfine il contenuto: _"Hello World"___
+message: db      "Hello Word!" ---> __Abbiamo il _message_ che è una semplice etichetta, _DB_ che definisce il tipo di varibile e indfine il contenuto: _"Hello World"___
 
    section .text ----> __dove è contenuto il codice da eseguire, nella memoria è solo read only__
 _start:
@@ -169,13 +172,13 @@ __N.B se notiamo indirizzi come 0x0000'40010 invece del solito 0xfffff'121fa è 
 
 - XCHG = muovi i dati tra due registri o indirizzi = XCHG rax, rbx
 
-_Moving pointer values_
+_Moving pointer values:_
 
 avendo un registro rsp con questo valore:
 
 $rsp   : 0x00007fffffffe490  →  0x0000000000000001 
 
-possiamo dire che sta facenco il puntatore a un indirizzo che contiene il valore __1__ piuttosto che averlo effettivamente, se vogliamo per qualsiasi motivo accedere a quel valore  o all'indirizzo sono due gli accorgimenti:
+possiamo dire che sta facenco il puntatore a un indirizzo che contiene il valore __1__ piuttosto che averlo effettivamente, se vogliamo per qualsiasi motivo accedere a quel valore o all'indirizzo sono due gli accorgimenti:
 <!-->
         mov rax, rsp #cosi otteniamo l'indirizzo contenuto cioè 0x00007fffffffe490
 <!-->
@@ -184,8 +187,8 @@ possiamo dire che sta facenco il puntatore a un indirizzo che contiene il valore
         mov rcx , [rsp + 10] #mi sposto di 10 byte quindi 10 indirizzi verso il basso nello stack, in questo caso stiamo facendo un'address offset
 <!-->
         lea rax, [rsp] #comando che copiava l'indirizzo puntato da rsp in rax
-
-# Aritmetica
+<!-->
+# Aritmetica e bitwise
 
 _rax e rbx supponiamo che siano settati ad 1_
 
@@ -198,3 +201,23 @@ _rax e rbx supponiamo che siano settati ad 1_
 - sub = fa la differenza (rax = rax-rbx) = 0
 
 - imul = fa la moltiplicazione = imul rax, rbx quindi rax = 1+1 = 1
+
+_Ora supponiamo di avere il registro rax = 1 e rbx = 2_
+
+- not = inverte tutti i bit (0 diventa 1 e 1 diventa 0) = not rax = 00000001 = 11111110
+
+- and = (se tutti i bit sono 1 allora = 1 sennò il resto è 0) = and rax, rbx = 00000001 and 00000010 = 00000000
+
+- or = (se un bit è 1 allora il resto è 1 il resto rimane 0) = or rax, rbx = 00000001 or 00000010 = 00000011
+
+- xor = (se i bit sono uguali allora 0 se diversi allora 1) = xor rax, rbx = 00000001 xor 00000010 = 00000011
+
+# Loop:
+
+_I Loop sono utili per la ripetizione di un'istruzione per un numero di volte_
+
+- _Comandi:_
+
+      mov rcx, 3 #comando per muovere il valore 2 al registro rcx che fa da contatore
+
+      loop <nome funzione o num indirizzo da ripetere> #comando per loopare
