@@ -12,7 +12,7 @@ _il registro a 64 bit a sotto di lui altri 3 più piccoli:_
 
         - al 8bit
 
--rbp,rsp,rip chiamati registri puntatori, rbp punta alla base dello stack, rsp punta alla locazione corrente nello stack e rip punta all'indirizzo della prossima istruzione
+- rbp,rsp,rip chiamati registri puntatori, rbp punta alla base dello stack, rsp punta alla locazione corrente nello stack e rip punta all'indirizzo della prossima istruzione
 
 ## Tipi di accessi alla memoria e endianness:
 
@@ -217,7 +217,15 @@ _Ora supponiamo di avere il registro rax = 1 e rbx = 2_
 _I Loop sono utili per la ripetizione di un'istruzione per un numero di volte_
 
 - _Comandi:_
-
+<!-->
       mov rcx, 3 #comando per muovere il valore 2 al registro rcx che fa da contatore
-
+<!-->
       loop <nome funzione o num indirizzo da ripetere> #comando per loopare
+<!-->
+# Istruzioni di salto senza condizione e con:
+
+_Le istruzioni di salto permettono di andare in qualsiasi punto del nostro codice che vogliamo, questi salti possono essere liberi cioè avvengono per qualsiasi circostanza oppure avvengono dopo una determinata condizione da soddisfare_
+
+- _Comandi:_
+
+      jmp <funzione o indirizzo di memoria> #comando che server per fare un jump incodizionato cioè che il salto avviene in ogni caso
