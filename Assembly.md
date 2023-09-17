@@ -1,7 +1,11 @@
 
+__Architettura x86-64__
+
+# Registri:
+
 _Nell' assembly utilizziamo i registri, piccole componenti, estramamente veloci ma che contengono pochi bytes, i quali sono:_
 
--rax,rbx,rcx,rdx,r8,r9,r10 chiamati pure data registers a 64bit , di solito immagazzinano istruzioni e argomenti di syscalls.
+- rax,rbx,rcx,rdx,r8,r9,r10 chiamati pure data registers a 64bit , di solito immagazzinano istruzioni e argomenti di syscalls.
 
 _il registro a 64 bit a sotto di lui altri 3 più piccoli:_
   - rax 64 bit
@@ -226,6 +230,23 @@ _I Loop sono utili per la ripetizione di un'istruzione per un numero di volte_
 
 _Le istruzioni di salto permettono di andare in qualsiasi punto del nostro codice che vogliamo, questi salti possono essere liberi cioè avvengono per qualsiasi circostanza oppure avvengono dopo una determinata condizione da soddisfare_
 
-- _Comandi:_
+- __Salto incondizionato___
 
+- _Comandi salto non condizionato:_
+<!-->
       jmp <funzione o indirizzo di memoria> #comando che server per fare un jump incodizionato cioè che il salto avviene in ogni caso
+<!-->
+
+- __Salto condizionato:__
+
+_Elenco di condizioni:_
+
+1) jz (jump zero) la condizione è rispettata se la zero flag (RFLAGS register) è impostato a 1 cioè il valore di un'operazione aritmetica da come risultato zero
+
+2) jnz (jump not zero) = la condizione è rispettata se la zero flag (RFLAGS register) è impostato a 0 cioè il valore di un'operazione aritmetica da come risultato un numero diverso da zero
+
+3) js (jump sign) = la condizione è rispettata se la sign flag (RFLAGS register) è impostato a 1 cioè dall'operazione tra 2 registri vi è come risultato un valore negativo
+
+4) jns (jump not sign) = la condizione è rispettata se la sign flag (RFLAGS register) è impostato a 0 cioè dall'operazione tra 2 registri vi  è come risultato un valore positivo
+
+5) jg (jump if greater) = la condizione è rispettata se la zero flag (RFLAGS register) è impostato a 0 cioè non ritorna un valore negativo inoltre se l'Overflow flag è impostato a 0 cioè non vi è stato overflow ed infine la sign flag deve essere 0 per indicare che la comparazione è positiva
