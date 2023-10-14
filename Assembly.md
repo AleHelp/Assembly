@@ -33,8 +33,8 @@ alla posizione 77 abbiamo il least significant byte
                        
 alla posizione 00 abbiamo il most significant byte
   
-___Little-Endian__ ci riferiamo al modo di immagazzianre o recuperare i bytes, se abbiamo un indirizzo come 0x0011223344556677 
-alla fine con il little sarà cosi 0x7766554433221100, seguendo la logica primo a destra per continuare a sinistra cioè __dal least significant to il most significant___
+___Little-Endian__ ci riferiamo al modo di immagazzinare o recuperare i bytes, se abbiamo un indirizzo come 0x0011223344556677 
+alla fine con il little sarà cosi 0x7766554433221100, seguendo la logica primo a destra per continuare a sinistra cioè __dal least significant al most significant___
 
 ___Big-Endian__ invece nel big l'indirizzo rimarrà uguale cioè 0x0011223344556677 perchè va da sinistra a destrà cioè dal __most significant byte al least significant byte___
 
@@ -72,7 +72,7 @@ message: db      "Hello Word!" ---> __Abbiamo il _message_ che è una semplice e
 _start:
    mov     rax, 1
    mov     rdi, 1
-   mov     rsi, message
+   mov     rsi, message 
    mov     rdx, 18
    syscall
 
@@ -90,13 +90,13 @@ _I file assembly hanno estensione .s o .asm, dopo averli creati vanno assemblati
 <!-->
        nasm -f elf64 helloWorld.s #comando per assemblare un elf64
 <!-->
-       ld -o helloWorld helloWorld.o #comadno per avere l'eseguibile
+       ld -o helloWorld helloWorld.o #comando per avere l'eseguibile
 <!-->
-_Il dissasembling è la pratica di smontare ELF appena creato e verrà utilizzato objdump con i seguenti comandi:_
+_Il dissasembling è la pratica di smontare un file ELF appena creato e verrà utilizzato objdump con i seguenti comandi:_
 <!-->
         objdump -M intel -d helloWorld #comando per disassemblare, con -m specifichiamo la sintassi intel
 <!-->
-        bjdump -M intel --no-show-raw-insn --no-addresses -d helloWorld #comando con cui vediamo solo il codice assembly
+        objdump -M intel --no-show-raw-insn --no-addresses -d helloWorld #comando con cui vediamo solo il codice assembly
 <!-->
         objdump -sj .data helloWorld #comando che estrae le strings datta .data section
 <!-->
@@ -106,6 +106,8 @@ _Commandi GDB-gef:_
        sudo apt-get install gdb
        wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
        echo source ~/.gdbinit-gef.py >> ~/.gdbinit #comandi per installare e settupare gdb con plugin di gef
+<!-->
+        help <nome comando>  #comando per aprire l'help di un comando in gdb
 <!-->
         gdb -q <nome eseguibile> #comando per disassemblare
 <!-->
@@ -141,11 +143,13 @@ b *0x40130b
 <!-->
         enable/disable/delete <numero breakpoint> #comandi possibili da eseguire sui breakpoint
 <!-->
+        info sharedlibrary #comando per visionare le librerie importate
+<!-->
 _Comandi per esaminare:_
 
 _In gdb per esaminare viene utilizzato il comando __x__ nella notazione __"x/FMT"__, in poche parole gli argomenti che prende in ordine dopo lo slash sono Count,Format e Size:
 
-- Count =  quante volte ripetere aka quante istruzioni o altri dati vuoi vedere
+- Count =  quante volte ripetere cioè quante istruzioni o altri dati vuoi vedere
 
 - Format = cosa vuoi vedere, tipo __i__ per le istruzioni o __x__ per i valori esadecimali
 
@@ -155,9 +159,16 @@ ES:
 <!-->
     x/s <indirizzo memoria> #comando per leggere una stringa
 <!-->
-    x/7ig $rip #comando che partendo dal rip legge le prossime 7 istruzioni
+    x/7ig $rip #comando che partendo dal rip legge le prossime 7 istruzioni (i = uguale a instruction e g = a giant cioè 8 bytes)
 <!-->
     x/wx #comando per esaminare valore dei registri o indirizzi
+<!-->
+
+_Abbiamo inoltre il comando __"print"__, a differenza di __"x/"__ che ci mostra il contenuto in memoria, print serve a mostrare il contenuto di un'espressione o di una variabile_
+
+ES:
+<!-->
+    p /d $rax #comando che mostrerà il contenuto di rax /d indica di mostrarlo in numero intero con segno
 <!-->
 
 _Comandi per modificare i valori:_ 
@@ -188,9 +199,9 @@ possiamo dire che sta facenco il puntatore a un indirizzo che contiene il valore
 <!-->
         mov rax, [rsp] #chiamato anche load value at address caricheremo in rax il valore 1, con le quadre di solito va specificato la size es word o dword
 <!-->
-        mov rcx , [rsp + 10] #mi sposto di 10 byte quindi 10 indirizzi verso il basso nello stack, in questo caso stiamo facendo un'address offset
+        mov rcx, [rsp + 10] #comando che sposta di 10 byte quindi 10 indirizzi verso il basso nello stack, in questo caso stiamo facendo un'address offset
 <!-->
-        lea rax, [rsp] #comando che copiava l'indirizzo puntato da rsp in rax
+        lea rax, [rsp] #comando che copia l'indirizzo puntato da rsp in rax
 <!-->
 # Aritmetica e bitwise
 
