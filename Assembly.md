@@ -121,23 +121,23 @@ _Commandi GDB-gef:_
 <!-->
         b *<nome funzione>+<offset> #setting del breakpoint partendo dalla funzione + offset l'asterisco è il break
 <!-->
-        registers #comando per stampare valori dei registri
-<!-->
 ES:
-b *_start+18
+`b *_start+18`
 <!-->
         b *<indirizzo di memoria> #setting del breakpoint a uno specifico indirizzo
 <!-->
 ES:
-b *0x40130b
+`b *0x40130b`
 <!-->
-        r o run #per avviare il debugger
+        registers #comando per stampare valori dei registri
 <!-->
-        stepi o si / si + <num istruzioni da muoversi>> #comando per muoversi una linea per volta o aggiungendo un numero per più istruzioni
+        r o run #comando per avviare il debugger
+<!-->
+        stepi o si / si + <num istruzioni da muoversi>> #comando per muoversi una linea per volta o aggiungendo un numero per muoversi di più istruzioni
 <!-->
         step o s  #comando che si muove fino alla fine
 <!-->
-        c o continue #per quando si settuano più breakpoint uno dietro l'altro
+        c o continue #comando per quando si settano più breakpoint uno dietro l'altro
 <!-->
         info breakpoint #commando per avere una lista e delle info sui breakpoint
 <!-->
@@ -147,7 +147,7 @@ b *0x40130b
 <!-->
 _Comandi per esaminare:_
 
-_In gdb per esaminare viene utilizzato il comando __x__ nella notazione __"x/FMT"__, in poche parole gli argomenti che prende in ordine dopo lo slash sono Count,Format e Size:
+_In gdb per esaminare viene utilizzato il comando __x__ nella notazione __"x/FMT"__, in poche parole gli argomenti che prende in ordine dopo lo slash sono Count,Format e Size:_
 
 - Count =  quante volte ripetere cioè quante istruzioni o altri dati vuoi vedere
 
@@ -170,12 +170,19 @@ ES:
 <!-->
     p /d $rax #comando che mostrerà il contenuto di rax /d indica di mostrarlo in numero intero con segno
 <!-->
-
+    p &<nome variabile> #comando per recuperare l'indirizzo di una variabile
+<!-->
 _Comandi per modificare i valori:_ 
 <!-->
       patch <tipo di dato o grandezza> <indirizzo di memoria< <valore> 
 <!-->
-      set $<registro>=>valore> #comando per modificare il registro
+      set $<registro>=<valore> #comando per modificare il registro
+<!-->
+_La modifica invece di una variabile può essere svolta in due modi o reperendo l'indirizzo con il comando __"print"__ o aggiungendo la __"&"__ davanti al nome della variabile_
+<!-->
+      set {tipo}&<nome variabile> = <valore> #comando per modificare il valore di una variabile, l'indirizzo è recuperato con la &
+<!-->
+      set {tipo}<indirizzo variabile> = <valore> #comando per modificare il valore di una variabile, l'indirizzo è recuperato con il comando print
 <!-->
 __N.B se notiamo indirizzi come 0x0000'40010 invece del solito 0xfffff'121fa è perchè nell'eseguibile è attivo il Position-Independent Executables, in cui gli indirizzi di memoria cambiano ogni volta in quanto verrà caricato casualmente._
 
