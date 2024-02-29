@@ -3,268 +3,333 @@ __Architettura x86-64__
 
 # Registri:
 
-_Nell' assembly utilizziamo i registri, piccole componenti, estramamente veloci ma che contengono pochi bytes, i quali sono:_
+_Nell' assembly utilizziamo i registri, piccole componenti, estramamente veloci ma che contengono pochi bytes, i quali più importanti per un utilizzo base e comprensivo sono:_
 
-- rax,rbx,rcx,rdx,r8,r9,r10 chiamati pure data registers a 64bit , di solito immagazzinano istruzioni e argomenti di syscalls.
+| **_Registri_** |                                 **_Descrizione_**                                 |
+|:--------------:|-----------------------------------------------------------------------------------|
+| rax            | Registro general purpose utilizzato per syscalls e dati  |
+| rbx            | Registro general purpose utilizzato per salvare valori tra chiamate di funzioni  |
+| rcx            | Registro general purpose utilizzato per immagazzinare istruzioni, dati e contatore nei loop  |
+| rdx            | Registro general purpose utilizzato per immagazzinare istruzioni, syscalls, dati  |
+| r8             | Registro secondario General purpose                                               |
+| r9             | Registro secondario General purpose                                               |
+| r10            | Registro secondario General purpose                                               |
+| rsi            | Registro di origine degli operandi                                                |
+| rdi            | Registro di destinazione degli operandi                                           |
+| rbp            | Registro puntatore che punta all'inizio dello stack                               |
+| rsp            | Registro puntatore che punta alla posizione corrente nello stack                  |
+| rip            | Registro puntatore che tiene il valore all'indirizzo dell'istruzione successiva   |
 
-_il registro a 64 bit a sotto di lui altri 3 più piccoli:_
-  - rax 64 bit
+> Come detto in precendenza ne esistono molti altri 
 
-    - eax 32 bit
+_La grandezza dei registri nel tempo è cambiato infatti dai 64 bit odierni prima avevamo:_
 
-      - ax 16 bit
+| **_Registro_** | **_Valore in bit_** | **_Valore in bytes_** |
+|:--------------:|:-------------------:|:---------------------:|
+| rax            |          64         |           8           |
+| eax            |          32         |           4           |
+| ax             |          16         |           2           |
+| al             |          8          |           1           |
 
-        - al 8bit
 
-- rbp,rsp,rip chiamati registri puntatori, rbp punta alla base dello stack, rsp punta alla locazione corrente nello stack e rip punta all'indirizzo della prossima istruzione
+### Tipi di accessi alla memoria:
 
-## Tipi di accessi alla memoria e endianness:
+_Assembly permette diverse tipologie di accesso alla memoria:_
 
-- Immediato = add 3
-- Tramite registro = add rax
-- Diretto con l'indirizzo specifico di memoria = call 0xffffffaa83ff 
-- Indiretto utilizzano un registro = call 0x44d000, call[rax]
-- Stack = add rsp
+|             **_Tipo di Accesso_**             | **_Esempio_**            |
+|-----------------------------------------------|:------------------------:|
+| Immediato                                     |           add 4          |
+| Tramite registro                              |          add rbx         |
+| Diretto, specificando l'indirizzo di memoria  |    call 0xffffffaa83ff   |
+| Indiretto, cioè utilizzando un registro       | call 0x66d020, call[rbx] |
+| Stack, l'indirizzo è in cima allo stack (top) |          add rsp         |
+### Endianness:
 
-Indirizzo Esempio: 
-0x0011223344556677
+_L'endianness nell'informatica indica in che ordine vengono immagazzinati i bytes dei dati quindi:_
 
-alla posizione 77 abbiamo il least significant byte
-                       
-alla posizione 00 abbiamo il most significant byte
-  
-___Little-Endian__ ci riferiamo al modo di immagazzinare o recuperare i bytes, se abbiamo un indirizzo come 0x0011223344556677 
-alla fine con il little sarà cosi 0x7766554433221100, seguendo la logica primo a destra per continuare a sinistra cioè __dal least significant al most significant___
+Indirizzo Esempio: `0x2233445566778899`
 
-___Big-Endian__ invece nel big l'indirizzo rimarrà uguale cioè 0x0011223344556677 perchè va da sinistra a destrà cioè dal __most significant byte al least significant byte___
+Prendendo l'indirizzo in esempio possiamo specificare che alla posizione `99` abbiamo il `Least significant byte` mente alla posizione `22` abbiamo il `Most significant byte`. 
 
-## Data types:
+Avendo ora fissato in mente questi due concetti possiamo spiegare che esistono due tipologie di endianness:
 
-La grandenza dei dati cambia a seconda dell'architettura però nella x86 segue quanto:
+- __Little Endian:__ Ci riferiamo al modo di immagazzinare o recuperare i bytes che seguendo la logica del little si prendendo i byte in coppia dal primo a destra per continuare a sinistra cioè __dal least significant al most significant__ quindi risulterà `0x9988776655443322`
 
-  - byte = 8 bits = 0xa
+- __Big-Endian:__ Ci riferiamo al modo di immagazzinare o recuperare i bytes che seguendo la logica del big l'indirizzo rimarrà uguale cioè `0x2233445566778899` perchè si prendono i bytes in coppia partendo da sinistra verso destrà cioè dal __most significant byte al least significant byte___
 
-  - word = 16 bits = 0xab
+### Data types:
 
-  - dword (double-word) = 32 bits = 0x1a3fcs
+_La grandenza dei dati utilizzati cambia a seconda dell'architettura però nella x86 segue quanto:_
 
-  - qword (quad-word) = 64 bits = 0xabcdef1234567890
+|     **_Valore_**    | **_bits_** |    **_esempio_**   |
+|---------------------|:----------:|--------------------|
+| Byte                |      8     | 0xc                |
+| Word                |     16     | 0xdb               |
+| Dword (Double-Word) |     32     | 0x1a3fcs           |
+| Qword (Quad-Word)   |     64     | 0xabcdef1234567890 |
 
-Da una determinata grandezza in bits o byte è anche corretto utilizzare i registri corretti:
+> Una determinata grandezza in bits o byte richiede che siano utilizzati i corretti [registri](./#registri) per evitare sprechi di spazio
 
-- byte = al
+### Struttura di un file assembly:
 
-- word = ax
+_Conoscere la struttura di un file assembly è importante per avere un'idea di come funzioni il codice in se_
 
-- dword = eax
+_Codice esempio:_
+```assembly
+      global  _start
 
-- qword = rax
+      section .data
 
-## Struttura di un file assembly:
+message: db   "Hello Word!"
 
-   global  _start ---> __inizio del codice da dove deve eseguirsi__
+      section .text
 
-   section .data ----> __dove sono contenuto le variabili che poi verrano caricate nel data segment, è read and write__
-   
-message: db      "Hello Word!" ---> __Abbiamo il _message_ che è una semplice etichetta, _DB_ che definisce il tipo di varibile e indfine il contenuto: _"Hello World"___
-
-   section .text ----> __dove è contenuto il codice da eseguire, nella memoria è solo read only__
 _start:
    mov     rax, 1
-   mov     rdi, 1
+   mov     rbx, 2
    mov     rsi, message 
-   mov     rdx, 18
+   add     rax, rbx
    syscall
 
-   mov     rax, 60
+   mov     rax, 50
    mov     rdi, 0
-   syscall
+```
 
-_Approfondimenti o appunti:_
 
-Nel codice sopra possiamo notare che è stato dichiarato db (data bytes) è utilizzato per dichiarare una lista di bytes, che prendono la grandezza a seconda del valore scritto, inoltre abbiamo pure dw (data words) che dichiara una lista di words, dd (data digits) che dichiara una lista di cifre e infine equ (equates) per definire una costante.
+|    **_Parte Assembly_**   |                                                   **_Spiegazione_**                                                  |
+|---------------------------|----------------------------------------------------------------------------------------------------------------------|
+| global  _start            | **Direttiva che indica tramite la label `_start` l' inizio del codice da dove deve eseguirsi**                       |
+| section .data             | **Sezione dove sono contenuto le variabili ha permessi di read and write**                                           |
+| message: db "Hello Word!" | **Il `message` è una semplice etichetta, `DB` definisce il tipo di variabile e infine il contenuto: _"Hello World"** |
+| section .text             | **Sezione che contiene il codice da eseguire, nella memoria è solo read only**                                       |
+| _start:                   | **Parte dove inzia realmente l'esecuzione con le relative istruzioni in assembly**                                   |
 
-## Assembling, linking e Disasssembling
+_Approfondimenti:_
 
-_I file assembly hanno estensione .s o .asm, dopo averli creati vanno assemblati e fatto il linking delle dipendenze con i seguenti commandi:_
-<!-->
-       nasm -f elf64 helloWorld.s #comando per assemblare un elf64
-<!-->
-       ld -o helloWorld helloWorld.o #comando per avere l'eseguibile
-<!-->
+Nel codice di sopra possiamo notare che è stato dichiarato un `db (data bytes)` è utilizzato per dichiarare una lista di bytes, che prendono la grandezza a seconda del valore scritto ma esistono pure: 
+
+- `dw (data words)`: dichiara una lista di words
+- `dd (data digits)`: dichiara una lista di cifre
+- `equ (equates)`: definisce una costante
+
+### Assembling, linking e Disasssembling:
+
+_I file assembly hanno estensione `.s` o `.asm`, dopo averli creati vanno assemblati e fatto il linking delle dipendenze con i seguenti commandi:_
+```bash
+nasm -f elf64 helloWorld.s #comando per assemblare un elf64
+```
+```bash
+ld -o helloWorld helloWorld.o #comando per avere l'eseguibile
+```
 _Il dissasembling è la pratica di smontare un file ELF appena creato e verrà utilizzato objdump con i seguenti comandi:_
-<!-->
-        objdump -M intel -d helloWorld #comando per disassemblare, con -m specifichiamo la sintassi intel
-<!-->
-        objdump -M intel --no-show-raw-insn --no-addresses -d helloWorld #comando con cui vediamo solo il codice assembly
-<!-->
-        objdump -sj .data helloWorld #comando che estrae le strings datta .data section
-<!-->
-_Commandi GDB-gef:_
-<!-->
-       sudo apt-get update
-       sudo apt-get install gdb
-       wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
-       echo source ~/.gdbinit-gef.py >> ~/.gdbinit #comandi per installare e settupare gdb con plugin di gef
-<!-->
-        help <nome comando>  #comando per aprire l'help di un comando in gdb
-<!-->
-        gdb -q <nome eseguibile> #comando per disassemblare
-<!-->
-        info functions #comando per vedere le funzioni dichiarate
-<!-->
-        info variables #comando per avere info sulle variabili
-<!-->
-        disas <nome funzione>  #comando per disassemblare la funzione
-<!-->
-        b <nome funzione o indirizzo di memoria> #possiamo settare il breakpoint
-<!-->
-        b *<nome funzione>+<offset> #setting del breakpoint partendo dalla funzione + offset l'asterisco è il break
-<!-->
-ES:
-`b *_start+18`
-<!-->
-        b *<indirizzo di memoria> #setting del breakpoint a uno specifico indirizzo
-<!-->
-ES:
-`b *0x40130b`
-<!-->
-        registers #comando per stampare valori dei registri
-<!-->
-        r o run #comando per avviare il debugger
-<!-->
-        stepi o si / si + <num istruzioni da muoversi>> #comando per muoversi una linea per volta o aggiungendo un numero per muoversi di più istruzioni
-<!-->
-        step o s  #comando che si muove fino alla fine
-<!-->
-        c o continue #comando per quando si settano più breakpoint uno dietro l'altro
-<!-->
-        info breakpoint #commando per avere una lista e delle info sui breakpoint
-<!-->
-        enable/disable/delete <numero breakpoint> #comandi possibili da eseguire sui breakpoint
-<!-->
-        info sharedlibrary #comando per visionare le librerie importate
-<!-->
+```bash
+objdump -M intel -d helloWorld #comando per disassemblare, con -m specifichiamo la sintassi intel
+```
+```bash
+objdump -M intel --no-show-raw-insn --no-addresses -d helloWorld #comando con cui vediamo solo il codice assembly
+```
+```bash
+objdump -sj .data helloWorld #comando che estrae le strings dalla .data section
+```
+
+### GDB:
+
+_GDB, acronimo di GNU Debugger, è un potente strumento di debug per programmi in C, C++ e altri linguaggi_
+
+_Comandi:_
+```bash
+sudo apt-get update
+sudo apt-get install gdb
+wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
+echo source ~/.gdbinit-gef.py >> ~/.gdbinit #comandi per installare e settupare gdb con plugin di gef
+```
+```bash
+help <nome comando>  #comando per aprire l'help di un comando in gdb
+```
+```bash
+gdb -q <nome eseguibile> #comando per disassemblare un ELF
+```
+```bash
+info functions #comando per vedere le funzioni dichiarate
+```
+```bash
+info variables #comando per avere info sulle variabili
+```
+```bash
+disas <nome funzione>  #comando per disassemblare la funzione
+```
+```bash
+b <nome funzione o indirizzo di memoria> #comando per settare il breakpoint
+```
+`b *<nome funzione>+<offset>` metodo che setta il breakpoint partendo dalla funzione sommandolo con l'offset (l'asterisco indica il break)
+
+ES: `b *_start+18`
+
+`b *<indirizzo di memoria>` metodo che setta il breakpoint a uno specifico indirizzo
+
+ES: `b *0x40130b`
+```bash
+registers #comando per stampare valori dei registri
+```
+```bash
+r o run #comando per avviare il debugger
+```
+```bash
+stepi o si / si + <num istruzioni da muoversi>> #comando per muoversi una linea per volta o aggiungendo un numero per muoversi di più istruzioni
+```
+```bash
+step o s #comando che si muove fino alla fine
+```
+```bash
+c o continue #comando che permette il movimento fino ad un breakpoint o alla fine del programma stesso
+```
+```bash
+info breakpoint #commando per avere una lista e delle info sui breakpoints
+```
+```bash
+enable/disable/delete <numero breakpoint> #comandi possibili da eseguire sui breakpoints
+```
+```bash
+info sharedlibrary #comando per visionare le librerie importate
+```
 _Comandi per esaminare:_
 
-_In gdb per esaminare viene utilizzato il comando __x__ nella notazione __"x/FMT"__, in poche parole gli argomenti che prende in ordine dopo lo slash sono Count,Format e Size:_
+_gdb permette di esaminare la memoria viene utilizzato il comando __x__ nella notazione `x/FMT`, in poche parole gli argomenti che prende in ordine dopo lo slash sono Count, Format e Size:_
 
-- Count =  quante volte ripetere cioè quante istruzioni o altri dati vuoi vedere
+1. Count: Indica le volte da ripetere cioè quante istruzioni o altri dati vuoi vedere
 
-- Format = cosa vuoi vedere, tipo __i__ per le istruzioni o __x__ per i valori esadecimali
+2. Format: Indica la tipologia del dato che si vuole vedere, tipo `i` per le istruzioni o `x` per i valori esadecimali
 
-- Size = grandezza della memoria da esaminare
-
-ES:
-<!-->
-    x/s <indirizzo memoria> #comando per leggere una stringa
-<!-->
-    x/7ig $rip #comando che partendo dal rip legge le prossime 7 istruzioni (i = uguale a instruction e g = a giant cioè 8 bytes)
-<!-->
-    x/wx #comando per esaminare valore dei registri o indirizzi
-<!-->
-
-_Abbiamo inoltre il comando __"print"__, a differenza di __"x/"__ che ci mostra il contenuto in memoria, print serve a mostrare il contenuto di un'espressione o di una variabile_
+3. Size: Indica grandezza della memoria da esaminare
 
 ES:
-<!-->
-    p /d $rax #comando che mostrerà il contenuto di rax /d indica di mostrarlo in numero intero con segno
-<!-->
-    p &<nome variabile> #comando per recuperare l'indirizzo di una variabile
-<!-->
+
+`x/s <indirizzo memoria>` comando per leggere una stringa
+
+`x/7ig $rip` comando che partendo dal rip legge le prossime 7 istruzioni `(i: uguale a instruction e g: uguale a giant cioè 8 bytes)`
+
+`x/wx` comando per esaminare valore dei registri o indirizzi
+
+
+_Abbiamo inoltre il comando __print__, a differenza di `x/` che ci mostra il contenuto in memoria, print serve a mostrare il contenuto di un'espressione o di una variabile_
+
+ES:
+
+`p /d $rax` comando che mostrerà il contenuto di rax /d indica di mostrarlo in numero intero con segno
+
+`p &<nome variabile>` comando per recuperare l'indirizzo di una variabile
+
 _Comandi per modificare i valori:_ 
-<!-->
-      patch <tipo di dato o grandezza> <indirizzo di memoria< <valore> 
-<!-->
-      set $<registro>=<valore> #comando per modificare il registro
-<!-->
+```bash
+patch <tipo di dato o grandezza> <indirizzo di memoria> <valore> 
+```
+```bash
+set $<registro>=<valore> #comando per modificare il valore di un registro
+```
 _La modifica invece di una variabile può essere svolta in due modi o reperendo l'indirizzo con il comando __"print"__ o aggiungendo la __"&"__ davanti al nome della variabile_
-<!-->
-      set {tipo}&<nome variabile> = <valore> #comando per modificare il valore di una variabile, l'indirizzo è recuperato con la &
-<!-->
-      set {tipo}<indirizzo variabile> = <valore> #comando per modificare il valore di una variabile, l'indirizzo è recuperato con il comando print
-<!-->
-__N.B se notiamo indirizzi come 0x0000'40010 invece del solito 0xfffff'121fa è perchè nell'eseguibile è attivo il Position-Independent Executables, in cui gli indirizzi di memoria cambiano ogni volta in quanto verrà caricato casualmente._
+```bash
+set {tipo}&<nome variabile> = <valore> #comando per modificare il valore di una variabile, l'indirizzo è recuperato con la &
+```
+```bash
+print <nome variabile> #comando per recuperare indirizzo di memoria
 
-# Istruzioni per il movimento dei dati
+set {tipo}<indirizzo variabile> = <valore> #comando per modificare il valore di una variabile
+```
+__N.B se notiamo indirizzi come 0x0000'40010 invece del solito 0xfffff'121fa è perchè nell'eseguibile è attivo il Position-Independent Executables, in cui gli indirizzi di memoria cambiano ogni volta in quanto verrà caricato casualmente.__
 
-- MOV = muove o carica un valore = mov rax, 4 rax = 4
+### Istruzioni per il movimento dei dati:
 
-- LEA (Load Effective Address) = carica un'indirizzo = lea rax, [rsp + 6]
+|       **_istruzioni_**       |             **_Spiegazione_**             |                         **_Esempio_**                         |
+|------------------------------|-------------------------------------------|---------------------------------------------------------------|
+| MOV                          | Muove o carica un valore                  | mov rax, 4 \| rax = 4                                         |
+| LEA (Load Effective Address) | Carica un'indirizzo                       | lea rax, [rsp + 6] \| rax = indirizzo rsp + 6 bytes di offset |
+| XCHG                         | Muove i dati tra due registri o indirizzi | XCHG rax, rbx                                                 |
 
-- XCHG = muovi i dati tra due registri o indirizzi = XCHG rax, rbx
+- __Moving pointer values:__
 
-_Moving pointer values:_
-
-avendo un registro rsp con questo valore:
+_Supponendo di avere un registro rsp con questo valore:_
 
 $rsp   : 0x00007fffffffe490  →  0x0000000000000001 
 
-possiamo dire che sta facenco il puntatore a un indirizzo che contiene il valore __1__ piuttosto che averlo effettivamente, se vogliamo per qualsiasi motivo accedere a quel valore o all'indirizzo sono due gli accorgimenti:
-<!-->
-        mov rax, rsp #cosi otteniamo l'indirizzo contenuto cioè 0x00007fffffffe490
-<!-->
-        mov rax, [rsp] #chiamato anche load value at address caricheremo in rax il valore 1, con le quadre di solito va specificato la size es word o dword
-<!-->
-        mov rcx, [rsp + 10] #comando che sposta di 10 byte quindi 10 indirizzi verso il basso nello stack, in questo caso stiamo facendo un'address offset
-<!-->
-        lea rax, [rsp] #comando che copia l'indirizzo puntato da rsp in rax
-<!-->
-# Aritmetica e bitwise
+_Possiamo vedere che contiene l'indirizzo `0x00007fffffffe490` che punta al valore `1` (puntatore), se vogliamo per qualsiasi motivo accedere a quel valore o all'indirizzo ci sono varie possibilità:_
+```bash
+mov rax, rsp #comando che sposta l'indirizzo che contine rsp in rax cioè 0x00007fffffffe490
+```
+```bash
+mov rax, [rsp] #chiamato anche load value at address caricheremo in rax il valore 1, con le quadre di solito va specificato la size es word o dword ma viene fatto in automatico dal nasm
+```
+```bash
+mov rcx, [rsp + 10] #comando che sposta di 10 byte quindi 10 indirizzi verso il basso nello stack, in questo caso stiamo facendo un'address offset
+```
+```bash
+lea rax, [rsp] #comando che copia l'indirizzo puntato da rsp in rax
+```
 
-_rax e rbx supponiamo che siano settati ad 1_
+### Aritmetica e bitwise:
 
-- INC = incrementa di 1 = inc rax = rax++
+_Supponendo di avere i due registri rax e rbx con entrambi il valore di `1`:_
 
-- DEC = decrementa di 1 = dec rax = rax--
+|**_Istruzione_** | **_Spiegazione_**                                     | **_Esempio_**       |
+|------------|-------------------------------------------------|---------------|
+| INC        | Incrementa di 1 il valore del registro specificato | inc rax \|  rax++    |
+| DEC        | Decrementa di 1 il valore del registro specificato | dec rax  \| rax --  |
+| ADD        | Aggiunge il valore del secondo registro al primo   | add rax, rbx \| rax = 1+1 = 2|
+| SUB        | Sottrae il valore del secondo registro dal primo   | sub rax, rbx \| rax = 1-1 = 0|
+| IMUL       | Moltiplica il primo registro per il secondo        | imul rax, rbx \| rax = 1*1 = 1|
 
-- add = fa la somma = add rax, rbx quindi rax = 1+1 = 2
 
-- sub = fa la differenza (rax = rax-rbx) = 0
+_Ora supponiamo di avere i registri `rax = 1` e `rbx = 2`_
 
-- imul = fa la moltiplicazione = imul rax, rbx quindi rax = 1+1 = 1
+| **_istruzioni_** |                   **_Spiegazione_**                   |                  **_Esempio_**                  |
+|------------------|-------------------------------------------------------|-------------------------------------------------|
+| not              | Inverte tutti i bit (0 diventa 1 e 1 diventa 0)       | not rax = 00000001 = 11111110                   |
+| and              | Se tutti i bit sono 1 allora = 1 sennò il resto è 0   | and rax, rbx = 00000001 and 00000010 = 00000000 |
+| or               | Se un bit è 1 allora il resto è 1 il resto rimane 0   | or rax, rbx = 00000001 or 00000010 = 00000011   |
+| xor              | Se i bit sono uguali allora è 0 se diversi allora è 1 | xor rax, rbx = 00000001 xor 00000010 = 00000011 |
 
-_Ora supponiamo di avere il registro rax = 1 e rbx = 2_
+### Loop:
 
-- not = inverte tutti i bit (0 diventa 1 e 1 diventa 0) = not rax = 00000001 = 11111110
+_I Loop sono utili per la ripetizione di un'istruzione per un certo numero di volte:_
 
-- and = (se tutti i bit sono 1 allora = 1 sennò il resto è 0) = and rax, rbx = 00000001 and 00000010 = 00000000
+- _Istruzioni:_
+```assembly
+mov rcx, 3 #comando per muovere il valore 3 nel registro rcx che farà da contatore
+```
+```assembly
+loop <nome funzione o num indirizzo da ripetere> #comando per loopare
+```
 
-- or = (se un bit è 1 allora il resto è 1 il resto rimane 0) = or rax, rbx = 00000001 or 00000010 = 00000011
+### Istruzioni di salto senza condizione e con:
 
-- xor = (se i bit sono uguali allora 0 se diversi allora 1) = xor rax, rbx = 00000001 xor 00000010 = 00000011
+_Le istruzioni di salto permettono di andare in qualsiasi punto del nostro codice che vogliamo, questi salti possono essere liberi cioè avvengono per qualsiasi circostanza oppure avvengono dopo una determinata condizione da soddisfare però prima deve essere specificata l'istruzione di `compare`:_
 
-# Loop:
+```assembly
+CMP <primo operando>, <secondo operando>
+```
+- __Salto incondizionato:__
 
-_I Loop sono utili per la ripetizione di un'istruzione per un numero di volte_
-
-- _Comandi:_
-<!-->
-      mov rcx, 3 #comando per muovere il valore 2 al registro rcx che fa da contatore
-<!-->
-      loop <nome funzione o num indirizzo da ripetere> #comando per loopare
-<!-->
-# Istruzioni di salto senza condizione e con:
-
-_Le istruzioni di salto permettono di andare in qualsiasi punto del nostro codice che vogliamo, questi salti possono essere liberi cioè avvengono per qualsiasi circostanza oppure avvengono dopo una determinata condizione da soddisfare_
-
-- __Salto incondizionato___
-
-- _Comandi salto non condizionato:_
-<!-->
-      jmp <funzione o indirizzo di memoria> #comando che server per fare un jump incodizionato cioè che il salto avviene in ogni caso
-<!-->
+```assembly
+jmp <funzione o indirizzo di memoria> #comando che serve a fare un jump incodizionato cioè che il salto avviene in ogni caso
+```
 
 - __Salto condizionato:__
 
-_Elenco di condizioni:_
+|           **_istruzioni_**          |                                                                                                                             **_Spiegazione_**                                                                                                                             |
+|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| JZ (Jump Zero)                      | La condizione è rispettata se la zero flag (RFLAGS register) è impostato a 1 cioè il valore di un'operazione aritmetica da come risultato zero                                                                                                                            |
+| JNZ (Jump Not Zero)                 | La condizione è rispettata se la zero flag (RFLAGS register) è impostato a 0 cioè il valore di un'operazione aritmetica da come risultato un numero diverso da zero                                                                                                       |
+| JS (jump Sign)                      | La condizione è rispettata se la sign flag (RFLAGS register) è impostato a 1 cioè dall'operazione tra 2 registri vi è come risultato un valore negativo                                                                                                                   |
+| JNS (Jump Not Sign)                 | La condizione è rispettata se la sign flag (RFLAGS register) è impostato a 0 cioè dall'operazione tra 2 registri vi  è come risultato un valore positivo                                                                                                                  |
+| JG (Jump If Greater)                | La condizione è rispettata se la zero flag (RFLAGS register) è impostato a 0 cioè non ritorna un valore negativo inoltre se l'Overflow flag è impostato a 0 cioè non vi è stato overflow ed infine la sign flag deve essere 0 per indicare che la comparazione è positiva |
+| JGE (Jump If Greater Than Or Equal) | La condizione è rispettata se la overflow flag e la sign flag (RFLAGS register) sono uguali con valore 0 cioè se il primo operando è maggiore o uguale del secondo                                                                                                        |
+| JL (Jump If Less)                   | La condizione è rispettata se la sign flag ha valore 1 ed è diversa dalla overflow flag cioè il primo operando è minore rispetto al secondo                                                                                                                               |
 
-1) jz (jump zero) la condizione è rispettata se la zero flag (RFLAGS register) è impostato a 1 cioè il valore di un'operazione aritmetica da come risultato zero
+_Queste sono solo alcune delle istruzioni per i salti condizionati, una lista completa è approfondita è visitabile [qui](https://www.philadelphia.edu.jo/academics/qhamarsheh/uploads/Lecture%2018%20Conditional%20Jumps%20Instructions.pdf)_
 
-2) jnz (jump not zero) = la condizione è rispettata se la zero flag (RFLAGS register) è impostato a 0 cioè il valore di un'operazione aritmetica da come risultato un numero diverso da zero
+- __RFLAGS:__
 
-3) js (jump sign) = la condizione è rispettata se la sign flag (RFLAGS register) è impostato a 1 cioè dall'operazione tra 2 registri vi è come risultato un valore negativo
+Nella tabella di sopra si parla di RFLAGS, è un registro a 64 bit che assume solo il valore di 0/1 e ogni suo bit è riservato ad un flag esempio `Zero Flag (6)`, `Sign Flag (7)`, `Overflow Flag (11)`:
 
-4) jns (jump not sign) = la condizione è rispettata se la sign flag (RFLAGS register) è impostato a 0 cioè dall'operazione tra 2 registri vi  è come risultato un valore positivo
+![rflag](./img/eflags.png)
 
-5) jg (jump if greater) = la condizione è rispettata se la zero flag (RFLAGS register) è impostato a 0 cioè non ritorna un valore negativo inoltre se l'Overflow flag è impostato a 0 cioè non vi è stato overflow ed infine la sign flag deve essere 0 per indicare che la comparazione è positiva
+> Questo è l'eflag semplicemente è a 32 bit
