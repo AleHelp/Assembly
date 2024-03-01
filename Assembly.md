@@ -134,7 +134,7 @@ objdump -sj .data helloWorld #comando che estrae le strings dalla .data section
 
 ### GDB:
 
-_GDB, acronimo di GNU Debugger, è un potente strumento di debug per programmi in C, C++ e altri linguaggi_
+_GDB, acronimo di GNU Debugger, è un potente strumento di debug per programmi in C, C++ e altri linguaggi verrà utilizzato insieme a GEF_
 
 _Comandi:_
 ```bash
@@ -210,7 +210,6 @@ ES:
 
 `x/wx` comando per esaminare valore dei registri o indirizzi
 
-
 _Abbiamo inoltre il comando __print__, a differenza di `x/` che ci mostra il contenuto in memoria, print serve a mostrare il contenuto di un'espressione o di una variabile_
 
 ES:
@@ -236,6 +235,20 @@ print <nome variabile> #comando per recuperare indirizzo di memoria
 set {tipo}<indirizzo variabile> = <valore> #comando per modificare il valore di una variabile
 ```
 __N.B se notiamo indirizzi come 0x0000'40010 invece del solito 0xfffff'121fa è perchè nell'eseguibile è attivo il Position-Independent Executables, in cui gli indirizzi di memoria cambiano ogni volta in quanto verrà caricato casualmente.__
+
+_Spiegazione RFLAGS:_
+
+_GDB permette di visualizzare lo stato degli RFLAGS nel corso di un debugging infatti quando una qualsiasi flag è settata ad 1 comparirà cosi:_
+
+![rflag](./img/posflag.png)
+
+_mentre a 0 sarà tutto in minuscolo._
+
+_Specifica pure quando è impostato un jump condizionato lo stato del flag:_
+
+![rflag](./img/sflag.png)
+
+![rflag](./img/nflag.png)
 
 ### Istruzioni per il movimento dei dati:
 
@@ -280,7 +293,7 @@ _Supponendo di avere i due registri rax e rbx con entrambi il valore di `1`:_
 
 _Ora supponiamo di avere i registri `rax = 1` e `rbx = 2`_
 
-| **_istruzioni_** |                   **_Spiegazione_**                   |                  **_Esempio_**                  |
+| **_Istruzioni_** |                   **_Spiegazione_**                   |                  **_Esempio_**                  |
 |------------------|-------------------------------------------------------|-------------------------------------------------|
 | not              | Inverte tutti i bit (0 diventa 1 e 1 diventa 0)       | not rax = 00000001 = 11111110                   |
 | and              | Se tutti i bit sono 1 allora = 1 sennò il resto è 0   | and rax, rbx = 00000001 and 00000010 = 00000000 |
@@ -314,7 +327,7 @@ jmp <funzione o indirizzo di memoria> #comando che serve a fare un jump incodizi
 
 - __Salto condizionato:__
 
-|           **_istruzioni_**          |                                                                                                                             **_Spiegazione_**                                                                                                                             |
+|           **_Istruzioni_**          |                                                                                                                             **_Spiegazione_**                                                                                                                             |
 |-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | JZ (Jump Zero)                      | La condizione è rispettata se la zero flag (RFLAGS register) è impostato a 1 cioè il valore di un'operazione aritmetica da come risultato zero                                                                                                                            |
 | JNZ (Jump Not Zero)                 | La condizione è rispettata se la zero flag (RFLAGS register) è impostato a 0 cioè il valore di un'operazione aritmetica da come risultato un numero diverso da zero                                                                                                       |
@@ -333,3 +346,17 @@ Nella tabella di sopra si parla di RFLAGS, è un registro a 64 bit che assume so
 ![rflag](./img/eflags.png)
 
 > Questo è l'eflag semplicemente è a 32 bit
+
+### Stack:
+
+_Lo stack è una struttura dati che cresce dall'alto verso il basso segue la logica del `LIFO (Last-In First-Out)` è utilizzato per salvare l'indirizzo di ritorno di una funzione,valori di un registro e ecc..._
+
+- __PUSH e POP:__
+
+|           **_Istruzioni_**          |                           **_Spiegazione_**                          |
+|-------------------------------------|----------------------------------------------------------------------|
+|push                                 | Permette di posizionare nella parte alta (Top) dello stack un valore |
+|pop                                  | Permette di rimuovere un valore dalla parte alta (Top) dello stack   |
+
+
+
